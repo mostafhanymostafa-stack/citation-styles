@@ -171,9 +171,12 @@
             background: white;
             padding: 15px;
             border-radius: 16px;
-            display: inline-block;
-            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 20px auto;
             box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            width: fit-content;
         }
 
         .actions-row {
@@ -240,7 +243,7 @@
         </div>
 
         <div id="qr-container">
-            <div class="qr-instruction">⚡ يرجى إبقاء هذه الشاشة مفتوحة للمسح</div>
+            <div class="qr-instruction">⚡ يرجى الحفظ وعرضه للدكتور</div>
             <div id="qrcode">
                 <canvas id="qr-canvas"></canvas>
             </div>
@@ -256,7 +259,7 @@
         </div>
 
         <div class="copyright-section">
-            <div class="copyright-text">© 2026 جميع الحقوق محفوظة لجامعة كفرالشيخ.</div>
+            <div class="copyright-text">© 2026 جميع الحقوق محفوظة.</div>
             <div class="author">Created by DR. Mostafa Hany</div>
             <div class="copyright-text" style="font-size: 11px; margin-top: 5px;">
                 غير مصرح بنسخ أو استخدام هذا التصميم بدون إذن مسبق.
@@ -264,7 +267,6 @@
         </div>
     </div>
 
-    <!-- كود المكتبة المدمج -->
     <script>
 /*! QRious v4.0.2 | (C) 2017 Alasdair Mercer | GPL v3 License
 Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
@@ -307,10 +309,13 @@ Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
                     "section": section
                 };
 
+                // تحويل النص ليكون متوافقاً مع قارئ البرنامج المكتبي
+                const qrString = unescape(encodeURIComponent(JSON.stringify(qrData)));
+
                 // إنشاء الـ QR Code باستخدام مكتبة QRious (التي تدعم الحروف العربية تلقائياً وبدون أي مشاكل مساحة)
                 var qr = new QRious({
                     element: document.getElementById('qr-canvas'),
-                    value: JSON.stringify(qrData),
+                    value: qrString,
                     size: 220,
                     level: 'H',
                     background: 'white',
