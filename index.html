@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الحضور - KLAttendance</title>
+    <!-- استدعاء خط cairo لدعم اللغة العربية بشكل جميل -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <!-- مكتبة توليد الـ QR Code -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        body {
+            /* تصميم ألوان غامق مشابه لتطبيق الأندرويد */
+            background: linear-gradient(135deg, #0B192C 0%, #1A365D 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px 30px;
+            max-width: 450px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            margin-bottom: 30px;
+        }
+
+        .header-icon {
+            font-size: 50px;
+            margin-bottom: 10px;
+            text-shadow: 0 4px 10px rgba(0, 255, 204, 0.4);
+        }
+
+        h1 {
+            font-size: 26px;
+            font-weight: 900;
+            color: #00ffcc;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #A0AEC0;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            text-align: right;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #E2E8F0;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.2);
+            color: #fff;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus {
+            border-color: #00ffcc;
+            box-shadow: 0 0 10px rgba(0, 255, 204, 0.2);
+        }
+
+        .btn-generate {
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            background: linear-gradient(90deg, #00C9FF 0%, #92FE9D 100%);
+            color: #000;
+            font-size: 18px;
+            font-weight: 800;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            box-shadow: 0 4px 15px rgba(0, 201, 255, 0.3);
+        }
+
+        .btn-generate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 201, 255, 0.5);
+        }
+
+        .btn-generate:active {
+            transform: translateY(1px);
+        }
+
+        /* كود QR */
+        #qr-container {
+            margin-top: 30px;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            background: #fff;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.5s ease;
+        }
+
+        #qr-container.visible {
+            display: flex;
+        }
+
+        #qrcode {
+            margin-bottom: 15px;
+        }
+
+        #qrcode img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        .qr-instruction {
+            color: #1A365D;
+            font-weight: 700;
+            font-size: 15px;
+            margin-bottom: 15px;
+        }
+
+        /* أزرار الإجراءات للـ QR */
+        .actions-row {
+            display: flex;
+            gap: 15px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 15px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 700;
+            transition: all 0.2s ease;
+            color: #fff;
+            flex: 1;
+        }
+
+        .btn-download {
+            background-color: #2D3748;
+        }
+        
+        .btn-download:hover {
+            background-color: #1A202C;
+        }
+
+        .btn-share {
+            background-color: #319795;
+        }
+
+        .btn-share:hover {
+            background-color: #285E61;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* حقوق الملكية */
+        .copyright-section {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .copyright-text {
+            font-size: 13px;
+            color: #8fa3b8;
+            margin-bottom: 5px;
+        }
+
+        .author {
+            font-size: 15px;
+            font-weight: 800;
+            color: #ffd700;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header-icon">🎓</div>
+        <h1>KLAttendance</h1>
+        <div class="subtitle">بوابة الطالب - توليد كود الحضور (QR)</div>
+
+        <!-- استخدمنا div بدلاً من form لحل مشكلة متصفحات الموبايل -->
+        <div id="qrForm">
+            <div class="input-group">
+                <label>الاسم الرباعي</label>
+                <input type="text" id="studentName" placeholder="مثال: أحمد محمد علي محمود">
+            </div>
+
+            <div class="input-group">
+                <label>رقم الجلوس / الكود</label>
+                <!-- type="tel" لفتح لوحة الأرقام في الهواتف -->
+                <input type="tel" id="seatNo" placeholder="أدخل رقم جلوسك (أرقام فقط)">
+            </div>
+
+            <div class="input-group">
+                <label>رقم السكشن / المجموعة</label>
+                <input type="tel" id="section" placeholder="رقم السكشن (أرقام فقط)">
+            </div>
+
+            <!-- الزر يقوم باستدعاء دالة الجافاسكريبت مباشرة -->
+            <button type="button" class="btn-generate" onclick="generateQR()">إظهار كود الحضور</button>
+        </div>
+
+        <div id="qr-container">
+            <div class="qr-instruction">📱 اعرض هذا الكود للدكتور</div>
+            <div id="qrcode"></div>
+            
+            <div class="actions-row">
+                <button type="button" class="action-btn btn-download" onclick="downloadQR()">
+                    <span>💾</span> تحميل
+                </button>
+                <button type="button" class="action-btn btn-share" onclick="shareQR()">
+                    <span>📤</span> مشاركة
+                </button>
+            </div>
+        </div>
+
+        <div class="copyright-section">
+            <div class="copyright-text">© 2026 جميع حقوق الملكية الفكرية محفوظة.</div>
+            <div class="author">Created by DR. Mostafa Hany</div>
+            <div class="copyright-text" style="font-size: 11px; margin-top: 5px;">
+                غير مصرح بنسخ أو تعديل هذا البرنامج بدون إذن مسبق.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function generateQR() {
+            const name = document.getElementById('studentName').value.trim();
+            const seatNo = document.getElementById('seatNo').value.trim();
+            const section = document.getElementById('section').value.trim();
+
+            if(!name || !seatNo || !section) {
+                alert("برجاء إدخال جميع البيانات (الاسم، ورقم الجلوس، والسكشن)!");
+                return;
+            }
+
+            // التحقق برمجياً من أن الإدخال أرقام فقط بدلاً من الاعتماد على المتصفح
+            if(!/^\d+$/.test(seatNo)) {
+                alert("عفواً، خانة رقم الجلوس يجب أن تحتوي على أرقام فقط (بدون مسافات أو حروف).");
+                return;
+            }
+            if(!/^\d+$/.test(section)) {
+                alert("عفواً، خانة السكشن يجب أن تحتوي على أرقام فقط (بدون مسافات أو حروف).");
+                return;
+            }
+
+            const qrData = {
+                "app": "KLAttendance",
+                "name": name,
+                "seatNo": seatNo,
+                "section": section
+            };
+
+            const qrString = JSON.stringify(qrData);
+
+            const qrcodeDiv = document.getElementById("qrcode");
+            qrcodeDiv.innerHTML = "";
+
+            try {
+                new QRCode(qrcodeDiv, {
+                    text: qrString,
+                    width: 220,
+                    height: 220,
+                    colorDark : "#000000",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.H
+                });
+
+                document.getElementById('qr-container').classList.add('visible');
+                
+                // النزول برفق للشاشة السفلية
+                setTimeout(() => {
+                    if(document.getElementById('qr-container').scrollIntoView) {
+                        document.getElementById('qr-container').scrollIntoView({ behavior: 'smooth' });
+                    }
+                }, 100);
+            } catch(e) {
+                alert("حدث خطأ غير متوقع أثناء توليد الكود. يرجى التأكد من اتصالك بالإنترنت.");
+            }
+        }
+
+        function downloadQR() {
+            const qrCanvas = document.querySelector('#qrcode canvas');
+            if (qrCanvas) {
+                const link = document.createElement('a');
+                link.download = 'My_QR_Attendance.png';
+                link.href = qrCanvas.toDataURL('image/png');
+                link.click();
+            } else {
+                alert("يرجى توليد الكود أولاً");
+            }
+        }
+
+        async function shareQR() {
+            const qrCanvas = document.querySelector('#qrcode canvas');
+            if (!qrCanvas) {
+                alert("يرجى توليد الكود أولاً");
+                return;
+            }
+
+            qrCanvas.toBlob(async (blob) => {
+                const file = new File([blob], 'My_QR_Attendance.png', { type: 'image/png' });
+
+                if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                    try {
+                        await navigator.share({
+                            title: 'كود الحضور الخاص بي',
+                            text: 'هذا هو كود الحضور (QR) الخاص بي.',
+                            files: [file]
+                        });
+                    } catch (error) {
+                        console.log('User canceled sharing or error occurred');
+                    }
+                } else {
+                    alert('متصفحك لا يدعم خاصية المشاركة المباشرة للصور. يرجى الضغط على زر "تحميل" ثم مشاركة الصورة من الاستوديو في هاتفك.');
+                }
+            }, 'image/png');
+        }
+    </script>
+</body>
+</html>
