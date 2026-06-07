@@ -96,7 +96,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
                 const seatNo = document.getElementById('seatNo').value.trim();
                 const section = document.getElementById('section').value.trim();
 
-                if(!name || !seatNo || !section) {
+                if(!/^[\u0600-\u06FF\s]+$/.test(name)) { alert("عفواً، برجاء كتابة الاسم باللغة العربية فقط!"); return; }`n                if(!name || !seatNo || !section) {
                     alert("برجاء إدخال جميع البيانات (الاسم، ورقم الجلوس، والسكشن)!");
                     return;
                 }
